@@ -1,2 +1,10 @@
-# LIST YOUR PYTHON3 PACKAGES HERE
-# NOTE: only place non-Duckietown libraries here; pin versions only if necessary
+# Core Dependencies
+numpy>=1.19.2
+pillow>=8.0.0
+websockets
+
+# CUDA Support
+#pycuda==2022.2.2
+
+# Utility Packages
+six>=1.15.0

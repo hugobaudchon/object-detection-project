@@ -10,9 +10,40 @@ import threading
 import time
 import cv2
 import numpy as np
+
+import sys
+import os
+# print(f"Python version: {sys.version}")
+# print(f"Python path: {sys.path}")
+# print(f"CUDA_HOME: {os.environ.get('CUDA_HOME')}")
+# print(f"LD_LIBRARY_PATH: {os.environ.get('LD_LIBRARY_PATH')}")
+
+import os
+import subprocess
+
+# print("Python path:", sys.path)
+# print("\nListing contents of potential package directories:")
+# for path in ['/usr/local/lib/python3/dist-packages', '/usr/local/lib/python3.8/dist-packages']:
+#     print(f"\nContents of {path}:")
+#     if os.path.exists(path):
+#         print(subprocess.check_output(['ls', path]).decode())
+#     else:
+#         print("Directory does not exist")
+#
+# try:
+#     import pkg_resources
+#     print("\nInstalled packages according to pkg_resources:")
+#     installed_packages = [d for d in pkg_resources.working_set]
+#     for package in installed_packages:
+#         print(package)
+# except Exception as e:
+#     print("Error listing packages:", e)
+
 import pycuda.autoinit
 import pycuda.driver as cuda
 import tensorrt as trt
+
+print("IS IT FUCKING LOADED???")
 
 CONF_THRESH = 0.5
 IOU_THRESHOLD = 0.4

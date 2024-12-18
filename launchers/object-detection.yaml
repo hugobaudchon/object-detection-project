@@ -1,0 +1,10 @@
+description: "Object detection launcher with CUDA support"
+docker:
+  environment:
+    NVIDIA_VISIBLE_DEVICES: all
+    NVIDIA_DRIVER_CAPABILITIES: all
+  volumes:
+    - /usr/local/cuda-10.2:/usr/local/cuda-10.2
+    - /usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu
+  runtime: nvidia
+parameters: {}

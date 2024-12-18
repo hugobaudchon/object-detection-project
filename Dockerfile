@@ -68,6 +68,8 @@ RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
   catkin build \
     --workspace ${CATKIN_WS_DIR}/
 
+RUN echo "catkin folder: " ${CATKIN_WS_DIR}
+
 # install launcher scripts
 COPY ./launchers/. "${LAUNCH_PATH}/"
 RUN dt-install-launchers "${LAUNCH_PATH}"
