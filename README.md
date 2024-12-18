@@ -13,10 +13,11 @@ ROS, check out [this template](https://github.com/duckietown/template-basic).
 for the robot script:
 ```
 dts devel build -H didibot -f --verbose
-dts devel run -R didibot -L object-detection -X
+dts devel run -H didibot -L object-detection -X
 ```
 
 for the laptop script (running the detection model):
+IMPORTANT: check the output of dts devel run for the IP and update it in the command below:
 ```
 python yolo_client.py 172.19.0.143 --port 8765 --model /home/hugo/PycharmProjects/object-detection-project/packages/object_detection/include/weights/best.pt
 ```

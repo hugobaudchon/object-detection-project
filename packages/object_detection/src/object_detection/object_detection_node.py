@@ -39,18 +39,18 @@ class ObjectDetectionNode(DTROS):
         self.inference_delay = 0.01
 
         # # Publisher for detections
-        # self.detection_pub = rospy.Publisher(
-        #     f'/{self._vehicle_name}/object_detection_node/detections',
-        #     Detection2DArray,
-        #     queue_size=1
-        # )
+        self.detection_pub = rospy.Publisher(
+            f'/{self._vehicle_name}/object_detection_node/detections',
+            BoundingBox,
+            queue_size=1
+        )
 
         # Start TCP server in a separate thread
         self.server_thread = threading.Thread(target=self.run_server)
         self.server_thread.daemon = True
         self.server_thread.start()
 
-        # # Start detection receiver thread
+        # # # Start detection receiver thread
         # self.receiver_thread = threading.Thread(target=self.receive_detections)
         # self.receiver_thread.daemon = True
         # self.receiver_thread.start()
