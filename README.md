@@ -9,6 +9,19 @@ ROS, check out [this template](https://github.com/duckietown/template-basic).
 
 ## How to use it
 
+
+for the robot script:
+```
+dts devel build -H didibot -f --verbose
+dts devel run -R didibot -L object-detection -X
+```
+
+for the laptop script (running the detection model):
+```
+python yolo_client.py 172.19.0.143 --port 8765 --model /home/hugo/PycharmProjects/object-detection-project/packages/object_detection/include/weights/best.pt
+```
+
+
 ### 1. Fork this repository
 
 Use the fork button in the top-right corner of the github page to fork this template repository.
