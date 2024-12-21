@@ -1,0 +1,75 @@
+version: 1.0
+citizens:
+  # Center ducks (10)
+  map_0/duckie_center1:
+    color: yellow
+  map_0/duckie_center2:
+    color: yellow
+  map_0/duckie_center3:
+    color: yellow
+  map_0/duckie_center4:
+    color: yellow
+  map_0/duckie_center5:
+    color: yellow
+  map_0/duckie_center6:
+    color: yellow
+  map_0/duckie_center7:
+    color: yellow
+  map_0/duckie_center8:
+    color: yellow
+  map_0/duckie_center9:
+    color: yellow
+  map_0/duckie_center10:
+    color: yellow
+  # Road ducks (5)
+  map_0/duckie_road1:
+    color: yellow
+  map_0/duckie_road2:
+    color: yellow
+  map_0/duckie_road3:
+    color: yellow
+  map_0/duckie_road4:
+    color: yellow
+  map_0/duckie_road5:
+    color: yellow
+  # Outside ducks (20)
+  map_0/duckie_outside1:
+    color: yellow
+  map_0/duckie_outside2:
+    color: yellow
+  map_0/duckie_outside3:
+    color: yellow
+  map_0/duckie_outside4:
+    color: yellow
+  map_0/duckie_outside5:
+    color: yellow
+  map_0/duckie_outside6:
+    color: yellow
+  map_0/duckie_outside7:
+    color: yellow
+  map_0/duckie_outside8:
+    color: yellow
+  map_0/duckie_outside9:
+    color: yellow
+  map_0/duckie_outside10:
+    color: yellow
+  map_0/duckie_outside11:
+    color: yellow
+  map_0/duckie_outside12:
+    color: yellow
+  map_0/duckie_outside13:
+    color: yellow
+  map_0/duckie_outside14:
+    color: yellow
+  map_0/duckie_outside15:
+    color: yellow
+  map_0/duckie_outside16:
+    color: yellow
+  map_0/duckie_outside17:
+    color: yellow
+  map_0/duckie_outside18:
+    color: yellow
+  map_0/duckie_outside19:
+    color: yellow
+  map_0/duckie_outside20:
+    color: yellow
