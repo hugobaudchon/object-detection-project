@@ -90,7 +90,7 @@ dts devel run -H didibot -L object-detection -X
 This will start streaming camera images to the laptop through a TCP connection.
 The laptop will run the object detection model and send the detections back to the robot, which will publish them as a ROS topic.
 
-Once the object detection package is running on the robot, you can run the client on the laptop to receive the images and send back the detections:
+Once the object detection package is running on the robot, you can run the client on the laptop to receive the images and send back the detections.
 
 IMPORTANT: check the output of ```dts devel run [...]``` for the IP and update it in the command below.
 
