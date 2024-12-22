@@ -1,70 +1,149 @@
 #!/usr/bin/env python3
 import os
 import time
-import rospy
 import socket
 import json
 import cv2
 import base64
 import threading
-from cv_bridge import CvBridge
-from duckietown.dtros import DTROS, NodeType
-from sensor_msgs.msg import CompressedImage
-# from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose, BoundingBox2D
-from object_detection.msg import BoundingBox, DetectionArray
 import struct
+import signal
+import numpy as np
+import asyncio
+import rospy
+from cv_bridge import CvBridge
+from sensor_msgs.msg import CompressedImage
+from dtps import context, ContextConfig, DTPSContext
+from dt_robot_utils import get_robot_name
+from duckietown_messages.actuators.differential_pwm import DifferentialPWM
 
-
-class ObjectDetectionNode(DTROS):
-    def __init__(self, node_name):
-        super(ObjectDetectionNode, self).__init__(
-            node_name=node_name,
-            node_type=NodeType.PERCEPTION
-        )
-
-        # static parameters
-        self._vehicle_name = os.environ['VEHICLE_NAME']
-        self._camera_topic = f"/{self._vehicle_name}/camera_node/image/compressed"
-
-        # bridge between OpenCV and ROS
+class ObjectDetectionNode:
+    def __init__(self):
+        self._shutdown = False
+        self._robot_name = get_robot_name()
+        
+        # ROS initialization
+        rospy.init_node('object_detection_node', anonymous=True)
         self._bridge = CvBridge()
-
+        
         # TCP server settings
         self.server_port = 8765
         self.client_socket = None
         self.client_lock = threading.Lock()
 
-        # Processing settings
-        self.last_inference_time = time.time()
-        self.inference_delay = 0.01
+        # Detection settings
+        self.latest_detections = []
+        self.detections_lock = threading.Lock()
+        self.duckie_class_id = 1  # Class ID for duckie
+        self.min_duckie_area = 3500  # minimum area to trigger stop
+        self.last_detection_time = 0
+        self.detection_timeout = 1.0  # seconds
 
-        # # Publisher for detections
-        self.detection_pub = rospy.Publisher(
-            f'/{self._vehicle_name}/object_detection_node/detections',
-            BoundingBox,
-            queue_size=1
-        )
+        # DTPS context
+        self.pwm_publisher = None
+
+        # Register sigint handler
+        signal.signal(signal.SIGINT, self._sigint_handler)
 
         # Start TCP server in a separate thread
         self.server_thread = threading.Thread(target=self.run_server)
         self.server_thread.daemon = True
         self.server_thread.start()
 
-        # # # Start detection receiver thread
-        # self.receiver_thread = threading.Thread(target=self.receive_detections)
-        # self.receiver_thread.daemon = True
-        # self.receiver_thread.start()
+        # Start detection receiver thread
+        self.receiver_thread = threading.Thread(target=self.receive_detections)
+        self.receiver_thread.daemon = True
+        self.receiver_thread.start()
 
-        # Subscribe to camera feed
+        # Subscribe to camera feed using ROS
         self.sub = rospy.Subscriber(
-            self._camera_topic,
+            f'/{self._robot_name}/camera_node/image/compressed',
             CompressedImage,
-            self.callback
+            self.camera_callback,
+            queue_size=1
         )
 
-        self.print_network_info()
+        print(f"Object detection node initialized for robot: {self._robot_name}")
 
-        rospy.loginfo(f"[{self._vehicle_name}] Object detection node initialized")
+    def calculate_bbox_area(self, bbox):
+        """Calculate area of bounding box"""
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        return width * height
+
+    def get_largest_duckie_area(self):
+        """Get the area of the largest duckie detection"""
+        with self.detections_lock:
+            duckie_detections = [det for det in self.latest_detections 
+                               if det['cls'] == self.duckie_class_id]
+            
+            if not duckie_detections:
+                return 0
+                
+            areas = [self.calculate_bbox_area(det['bbox']) for det in duckie_detections]
+            return max(areas) if areas else 0
+
+    async def motor_control(self):
+        """Main control loop for motor commands"""
+        try:
+            # Initialize connection to DTPS
+            switchboard = (await context("switchboard")).navigate(self._robot_name)
+            self.pwm_publisher = await (switchboard / "actuator" / "wheels" / "base" / "pwm").until_ready()
+            
+            # Initial state - stop
+            stop_msg = DifferentialPWM(left=0.0, right=0.0)
+            await self.pwm_publisher.publish(stop_msg.to_rawdata())
+            print("Motor control initialized - Robot stopped")
+
+            while not self._shutdown:
+                try:
+                    current_time = time.time()
+                    time_since_last_detection = current_time - self.last_detection_time
+                    
+                    if time_since_last_detection > self.detection_timeout:
+                        # Haven't received detections recently, stay stopped
+                        if self.pwm_publisher:
+                            stop_msg = DifferentialPWM(left=0.0, right=0.0)
+                            await self.pwm_publisher.publish(stop_msg.to_rawdata())
+                            print("No recent detections - Stopping")
+                    else:
+                        # Process latest detection
+                        largest_duckie_area = self.get_largest_duckie_area()
+                        
+                        if largest_duckie_area > self.min_duckie_area:
+                            # Duckie detected and close - stop
+                            pwm = DifferentialPWM(left=0.0, right=0.0)
+                            print(f"Duckie detected! Area: {largest_duckie_area:.1f} - Stopping")
+                        else:
+                            # No duckie or too far - move forward
+                            rads_left = 0.1
+                            rads_right = 0.1
+                            pwm_left = 0.4 * rads_left
+                            pwm_right = 0.4 * rads_right
+                            pwm = DifferentialPWM(left=pwm_left, right=pwm_right)
+                            print(f"Moving forward, largest duckie area: {largest_duckie_area:.1f}")
+                        
+                        if self.pwm_publisher:
+                            await self.pwm_publisher.publish(pwm.to_rawdata())
+                    
+                except Exception as e:
+                    print(f"Error in motor control loop: {e}")
+                    
+                await asyncio.sleep(0.1)  # 10Hz control rate
+                
+        except Exception as e:
+            print(f"Error in motor control setup: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def camera_callback(self, msg):
+        """Handle incoming camera frames from ROS"""
+        try:
+            # The msg.data already contains the JPEG data
+            encoded_frame = base64.b64encode(msg.data).decode()
+            self.send_frame(encoded_frame)
+        except Exception as e:
+            print(f"Error in camera callback: {e}")
 
     def run_server(self):
         """Run TCP server"""
@@ -73,183 +152,134 @@ class ObjectDetectionNode(DTROS):
         server_socket.bind(('0.0.0.0', self.server_port))
         server_socket.listen(1)
 
-        rospy.loginfo(f"Starting TCP server on port {self.server_port}")
+        print(f"Starting TCP server on port {self.server_port}")
 
-        while not rospy.is_shutdown():
+        while not self._shutdown:
             try:
                 client, addr = server_socket.accept()
-                rospy.loginfo(f"Client connected from {addr}")
+                print(f"Client connected from {addr}")
                 with self.client_lock:
                     if self.client_socket is not None:
                         self.client_socket.close()
                     self.client_socket = client
             except Exception as e:
-                rospy.logerr(f"Server error: {e}")
-                rospy.sleep(1)
+                print(f"Server error: {e}")
+                time.sleep(1)
 
-    def get_ip_addresses(self):
-        """Get all IP addresses for the robot"""
-        ips = []
-        try:
-            # Get all network interfaces
-            interfaces = socket.getaddrinfo(host=socket.gethostname(), port=None, family=socket.AF_INET)
-            # Extract unique IPs
-            all_ips = set(item[4][0] for item in interfaces)
-            # Filter out localhost
-            ips = [ip for ip in all_ips if not ip.startswith('127.')]
+    def receive_detections(self):
+        """Receive and process detections from client"""
+        while not self._shutdown:
+            with self.client_lock:
+                if self.client_socket is None:
+                    time.sleep(0.1)
+                    continue
 
-            # If no non-localhost IPs found, try alternative method
-            if not ips:
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 try:
-                    # Doesn't need to be reachable
-                    s.connect(('10.255.255.255', 1))
-                    ip = s.getsockname()[0]
-                    if ip and not ip.startswith('127.'):
-                        ips.append(ip)
-                except Exception:
-                    pass
-                finally:
-                    s.close()
-        except Exception as e:
-            rospy.logerr(f"Error getting IP addresses: {e}")
+                    # Make socket non-blocking for initial read
+                    self.client_socket.setblocking(False)
+                    try:
+                        length_data = self.client_socket.recv(4)
+                    except socket.error:
+                        time.sleep(0.01)
+                        continue
+                    finally:
+                        self.client_socket.setblocking(True)
 
-        return ips
+                    if not length_data:
+                        print("Received empty length data, client may have disconnected")
+                        self.client_socket = None
+                        continue
 
-    def print_network_info(self):
-        """Print network information to help with connections"""
-        ips = self.get_ip_addresses()
+                    message_length = struct.unpack('!I', length_data)[0]
 
-        rospy.loginfo("=" * 50)
-        rospy.loginfo(f"Robot name: {self._vehicle_name}")
-        rospy.loginfo(f"Server port: {self.server_port}")
-        rospy.loginfo("IP Addresses:")
-        for ip in ips:
-            rospy.loginfo(f"  - {ip}")
-        rospy.loginfo("=" * 50)
+                    # Receive message
+                    message = b''
+                    remaining = message_length
+                    while remaining > 0:
+                        chunk = self.client_socket.recv(remaining)
+                        if not chunk:
+                            raise ConnectionError("Connection closed while reading message")
+                        message += chunk
+                        remaining -= len(chunk)
 
-        # Also print to stdout for clarity
-        print("\nNetwork Information:")
-        print("=" * 50)
-        print(f"Robot name: {self._vehicle_name}")
-        print(f"Server port: {self.server_port}")
-        print("IP Addresses:")
-        for ip in ips:
-            print(f"  - {ip}")
-        print("=" * 50)
+                    # Update detections and timestamp
+                    detections = json.loads(message.decode())
+                    with self.detections_lock:
+                        self.latest_detections = detections
+                    self.last_detection_time = time.time()
+                    
+                    print(f"Received {len(detections)} detections:")
+                    for det in detections:
+                        bbox = det['bbox']
+                        area = self.calculate_bbox_area(bbox)
+                        print(f"  Class {det['cls']}: conf={det['conf']:.2f}, bbox={bbox}, area={area:.1f}")
 
-    # def receive_detections(self):
-    #     """Receive and process detections from client"""
-    #     buffer = ""
-    #     while not rospy.is_shutdown():
-    #         with self.client_lock:
-    #             if self.client_socket is None:
-    #                 rospy.sleep(0.1)
-    #                 continue
-    #
-    #             try:
-    #                 # First receive message length (4 bytes)
-    #                 length_data = self.client_socket.recv(4)
-    #                 if not length_data:
-    #                     continue
-    #
-    #                 message_length = struct.unpack('!I', length_data)[0]
-    #
-    #                 # Then receive the actual message
-    #                 message = self.client_socket.recv(message_length).decode()
-    #
-    #                 # Process detections
-    #                 detections = json.loads(message)
-    #                 self.publish_detections(detections)
-    #
-    #             except Exception as e:
-    #                 rospy.logerr(f"Error receiving detections: {e}")
-    #                 self.client_socket = None
-
-    # def publish_detections(self, detections):
-    #     """Publish detections to ROS topic"""
-    #     detection_array = Detection2DArray()
-    #     detection_array.header.stamp = rospy.Time.now()
-    #     detection_array.header.frame_id = f"{self._vehicle_name}/camera_optical_frame"
-    #
-    #     for det in detections:
-    #         detection = Detection2D()
-    #
-    #         # Set bounding box
-    #         bbox = det['bbox']
-    #         detection.bbox = BoundingBox2D()
-    #         detection.bbox.center.x = (bbox[0] + bbox[2]) / 2
-    #         detection.bbox.center.y = (bbox[1] + bbox[3]) / 2
-    #         detection.bbox.size_x = bbox[2] - bbox[0]
-    #         detection.bbox.size_y = bbox[3] - bbox[1]
-    #
-    #         # Set class and confidence
-    #         hypothesis = ObjectHypothesisWithPose()
-    #         hypothesis.id = det['cls']
-    #         hypothesis.score = det['conf']
-    #         detection.results.append(hypothesis)
-    #
-    #         detection_array.detections.append(detection)
-    #
-    #     self.detection_pub.publish(detection_array)
+                except socket.error as e:
+                    if e.errno == socket.EAGAIN or e.errno == socket.EWOULDBLOCK:
+                        continue
+                    else:
+                        print(f"Socket error: {e}")
+                        self.client_socket = None
+                except Exception as e:
+                    print(f"Error receiving detections: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    self.client_socket = None
 
     def send_frame(self, encoded_frame):
-        """Send frame to client, no response expected"""
+        """Send frame to client"""
         with self.client_lock:
             if self.client_socket is None:
                 return
 
             try:
-                # Make socket non-blocking for send
-                self.client_socket.setblocking(0)
-
                 # Prepare and send message
                 message = encoded_frame.encode()
                 message_length = struct.pack('!I', len(message))
-
-                # Try to send with short timeout
-                import select
-                ready = select.select([], [self.client_socket], [], 0.1)[1]
-                if ready:
-                    # Send length first
-                    self.client_socket.send(message_length)
-                    # Then send data
-                    self.client_socket.send(message)
-                    rospy.logdebug(f"Sent frame of size {len(message)} bytes")
-                else:
-                    rospy.logwarn("Socket not ready for writing, skipping frame")
+                
+                self.client_socket.sendall(message_length)
+                self.client_socket.sendall(message)
 
             except Exception as e:
-                rospy.logerr(f"Error sending frame: {e}")
+                print(f"Error sending frame: {e}")
                 self.client_socket = None
 
-    def callback(self, msg):
-        """Handle incoming camera frames"""
-        current_time = time.time()
+    async def worker(self):
+        """Main worker function"""
+        try:
+            # Start motor control
+            motor_task = asyncio.create_task(self.motor_control())
+            
+            # Wait until shutdown
+            await self.join()
+            
+        except Exception as e:
+            print(f"Error in worker: {e}")
+            import traceback
+            traceback.print_exc()
 
-        if current_time - self.last_inference_time >= self.inference_delay:
-            self.last_inference_time = current_time
+    async def join(self):
+        """Wait until shutdown"""
+        while not self._shutdown:
+            await asyncio.sleep(1)
 
-            try:
-                image = self._bridge.compressed_imgmsg_to_cv2(msg)
-                image = cv2.resize(image, (416, 416))
-                _, buffer = cv2.imencode('.jpg', image)
-                encoded_frame = base64.b64encode(buffer).decode()
-                self.send_frame(encoded_frame)
+    def _sigint_handler(self, _, __):
+        """Handle SIGINT"""
+        self._shutdown = True
 
-            except Exception as e:
-                rospy.logerr(f"Error processing frame: {e}")
-        else:
-            rospy.logdebug("Skipping frame due to inference delay")
+    @property
+    def is_shutdown(self):
+        return self._shutdown
 
-    def on_shutdown(self):
-        """Cleanup when node is shutdown"""
-        with self.client_lock:
-            if self.client_socket:
-                self.client_socket.close()
-        rospy.loginfo("Object detection node is shutting down")
+    def spin(self):
+        """Start the node"""
+        try:
+            asyncio.run(self.worker())
+        except RuntimeError as e:
+            if not self.is_shutdown:
+                print(f"An error occurred while running the event loop: {e}")
+                raise
 
-
-if __name__ == '__main__':
-    node = ObjectDetectionNode(node_name='object_detection_node')
-    rospy.spin()
+if __name__ == "__main__":
+    node = ObjectDetectionNode()
+    node.spin()

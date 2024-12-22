@@ -1,7 +1,6 @@
 # Core Dependencies
 numpy>=1.19.2
 pillow>=8.0.0
-websockets
 
 # CUDA Support
 #pycuda==2022.2.2
