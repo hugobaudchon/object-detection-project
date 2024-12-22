@@ -12,7 +12,7 @@
 
 ### Data Collection
 
-Steps 1-3 are for virtual robot setup, while steps 4-6 are for running data collection on either a real or virtual robot.
+Steps 1-3 are for virtual robot setup, while steps 4-5 are for running data collection on either a real or virtual robot.
 
 #### Virtual Robot Setup (optional if you only want to use the real robot)
 
