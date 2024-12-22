@@ -21,21 +21,28 @@ class ObjectDetectionNode:
     def __init__(self):
         self._shutdown = False
         self._robot_name = get_robot_name()
+        self._vehicle_name = self._robot_name
         
         # ROS initialization
         rospy.init_node('object_detection_node', anonymous=True)
         self._bridge = CvBridge()
         
         # TCP server settings
-        self.server_port = 8765
+        self.server_port = 8766
         self.client_socket = None
         self.client_lock = threading.Lock()
+
+        # Frame rate control
+        self.last_frame_time = 0
+        self.min_frame_interval = 0.33  # 3 FPS max
+        self.frames_sent = 0
+        self.last_stats_time = time.time()
 
         # Detection settings
         self.latest_detections = []
         self.detections_lock = threading.Lock()
         self.duckie_class_id = 1  # Class ID for duckie
-        self.min_duckie_area = 3500  # minimum area to trigger stop
+        self.min_duckie_area = 5000  # minimum area to trigger stop
         self.last_detection_time = 0
         self.detection_timeout = 1.0  # seconds
 
@@ -55,7 +62,12 @@ class ObjectDetectionNode:
         self.receiver_thread.daemon = True
         self.receiver_thread.start()
 
-        # Subscribe to camera feed using ROS
+        # Start stats thread
+        self.stats_thread = threading.Thread(target=self._print_stats)
+        self.stats_thread.daemon = True
+        self.stats_thread.start()
+
+        # Subscribe to camera feed
         self.sub = rospy.Subscriber(
             f'/{self._robot_name}/camera_node/image/compressed',
             CompressedImage,
@@ -63,7 +75,57 @@ class ObjectDetectionNode:
             queue_size=1
         )
 
+        self.print_network_info()
         print(f"Object detection node initialized for robot: {self._robot_name}")
+
+    def _print_stats(self):
+        """Print performance statistics periodically"""
+        while not self._shutdown:
+            time.sleep(5.0)  # Print every 5 seconds
+            current_time = time.time()
+            elapsed = current_time - self.last_stats_time
+            fps = self.frames_sent / elapsed
+            print(f"\nPerformance Stats:")
+            print(f"Frames sent: {fps:.1f} fps\n")
+            self.frames_sent = 0
+            self.last_stats_time = current_time
+
+    def get_ip_addresses(self):
+        """Get all IP addresses for the robot"""
+        ips = []
+        try:
+            interfaces = socket.getaddrinfo(host=socket.gethostname(), port=None, family=socket.AF_INET)
+            all_ips = set(item[4][0] for item in interfaces)
+            ips = [ip for ip in all_ips if not ip.startswith('127.')]
+
+            if not ips:
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                try:
+                    s.connect(('10.255.255.255', 1))
+                    ip = s.getsockname()[0]
+                    if ip and not ip.startswith('127.'):
+                        ips.append(ip)
+                except Exception:
+                    pass
+                finally:
+                    s.close()
+        except Exception as e:
+            print(f"Error getting IP addresses: {e}")
+
+        return ips
+
+    def print_network_info(self):
+        """Print network information to help with connections"""
+        ips = self.get_ip_addresses()
+        
+        print("\nNetwork Information:")
+        print("=" * 50)
+        print(f"Robot name: {self._vehicle_name}")
+        print(f"Server port: {self.server_port}")
+        print("IP Addresses:")
+        for ip in ips:
+            print(f"  - {ip}")
+        print("=" * 50)
 
     def calculate_bbox_area(self, bbox):
         """Calculate area of bounding box"""
@@ -139,9 +201,24 @@ class ObjectDetectionNode:
     def camera_callback(self, msg):
         """Handle incoming camera frames from ROS"""
         try:
-            # The msg.data already contains the JPEG data
-            encoded_frame = base64.b64encode(msg.data).decode()
+            current_time = time.time()
+            # Rate limit frame sending
+            if current_time - self.last_frame_time < self.min_frame_interval:
+                return
+            
+            self.last_frame_time = current_time
+
+            # Decode the compressed image
+            np_arr = np.frombuffer(msg.data, np.uint8)
+            img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            
+            # Re-encode with lower quality
+            _, buffer = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 50])  # Try 50% quality
+            encoded_frame = base64.b64encode(buffer).decode()
+            
             self.send_frame(encoded_frame)
+            self.frames_sent += 1
+                
         except Exception as e:
             print(f"Error in camera callback: {e}")
 
@@ -158,6 +235,8 @@ class ObjectDetectionNode:
             try:
                 client, addr = server_socket.accept()
                 print(f"Client connected from {addr}")
+                # Set TCP_NODELAY for low latency
+                client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                 with self.client_lock:
                     if self.client_socket is not None:
                         self.client_socket.close()
@@ -238,6 +317,7 @@ class ObjectDetectionNode:
                 message_length = struct.pack('!I', len(message))
                 
                 self.client_socket.sendall(message_length)
+                print(f"size of frame sent: {len(message)}")
                 self.client_socket.sendall(message)
 
             except Exception as e:

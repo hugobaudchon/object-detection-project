@@ -8,26 +8,54 @@ import struct
 import threading
 import queue
 import time
+from torch import inference_mode
 from ultralytics import YOLO
 
 
 class YOLOClient:
-    def __init__(self, robot_ip, port=8765, model_path='yolov8n.pt'):
+    def __init__(self, robot_ip, port=8766, model_path='yolov8n.pt'):
         self.robot_ip = robot_ip
         self.port = port
         self.socket = None
         self.connected = False
         self.frame_queue = queue.Queue(maxsize=1)  # Only keep latest frame
         self.running = True
+        self.frames_received = 0
+        self.frames_processed = 0
+        self.last_stats_time = time.time()
 
         # Initialize YOLO
         print(f"Loading YOLO model from {model_path}")
         self.model = YOLO(model_path)
+        self.model.fuse()  # Fuse Conv and BN layers for inference
+        inference_mode(True)  # Disable gradient computation
+        print("Applied YOLO optimizations for inference")
 
         # Start receiver thread
         self.receiver_thread = threading.Thread(target=self._receive_frames)
         self.receiver_thread.daemon = True
         self.receiver_thread.start()
+
+        # Start stats thread
+        self.stats_thread = threading.Thread(target=self._print_stats)
+        self.stats_thread.daemon = True
+        self.stats_thread.start()
+
+    def _print_stats(self):
+        """Print performance statistics periodically"""
+        while self.running:
+            time.sleep(5.0)  # Print every 5 seconds
+            current_time = time.time()
+            elapsed = current_time - self.last_stats_time
+            fps_received = self.frames_received / elapsed
+            fps_processed = self.frames_processed / elapsed
+            print(f"\nPerformance Stats:")
+            print(f"Frames received: {fps_received:.1f} fps")
+            print(f"Frames processed: {fps_processed:.1f} fps")
+            print(f"Frame drop rate: {((fps_received - fps_processed) / fps_received * 100):.1f}%\n")
+            self.frames_received = 0
+            self.frames_processed = 0
+            self.last_stats_time = current_time
 
     def connect(self):
         """Connect to robot"""
@@ -36,6 +64,8 @@ class YOLOClient:
                 self.socket.close()
 
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # Set TCP_NODELAY to minimize latency
+            self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self.socket.connect((self.robot_ip, self.port))
             self.connected = True
             print(f"Connected to {self.robot_ip}:{self.port}")
@@ -60,7 +90,6 @@ class YOLOClient:
                     raise ConnectionError("Connection closed by robot")
 
                 message_length = struct.unpack('!I', length_data)[0]
-                print(f"Expecting message of length: {message_length}")
 
                 # Read the actual message
                 message = b''
@@ -79,13 +108,21 @@ class YOLOClient:
                 )
 
                 if frame is not None:
-                    print("Got new frame")
-                    # Update frame queue
+                    self.frames_received += 1
+                    # Drop any old frame in the queue
                     try:
-                        self.frame_queue.get_nowait()
+                        while not self.frame_queue.empty():
+                            _ = self.frame_queue.get_nowait()
+                            print("Dropped old frame")
                     except queue.Empty:
                         pass
-                    self.frame_queue.put(frame)
+
+                    # Add timestamp to frame data
+                    frame_with_timestamp = {
+                        'frame': frame,
+                        'timestamp': time.time()
+                    }
+                    self.frame_queue.put(frame_with_timestamp)
 
             except Exception as e:
                 print(f"Error receiving frame: {e}")
@@ -118,22 +155,23 @@ class YOLOClient:
                 try:
                     print("Waiting for frame from queue...")
                     # Get the latest frame
-                    frame = self.frame_queue.get(timeout=1.0)
-                    print(f"Got frame from queue, shape: {frame.shape}")
+                    frame_data = self.frame_queue.get(timeout=1.0)
+                    frame = frame_data['frame']
+                    timestamp = frame_data['timestamp']
+                    latency = time.time() - timestamp
+                    print(f"Processing frame with {latency:.2f} seconds latency")
 
                     # Create a copy of frame for visualization
                     display_frame = frame.copy()
 
                     # Run YOLO inference
-                    print("Running YOLO inference...")
                     results = self.model(frame)
-                    print(f"Got inference results")
+                    self.frames_processed += 1
 
                     # Process results
                     detections = []
                     for r in results:
                         boxes = r.boxes
-                        print(f"Found {len(boxes)} boxes")
                         for box in boxes:
                             detection = {
                                 'bbox': box.xyxy[0].tolist(),
@@ -146,7 +184,6 @@ class YOLOClient:
                     self.send_detections(detections)
 
                     # Visualize results on the copy
-                    print("Drawing detections...")
                     for det in detections:
                         bbox = det['bbox']
                         x1, y1, x2, y2 = map(int, bbox)
@@ -161,14 +198,20 @@ class YOLOClient:
                             2
                         )
 
-                    # Show frame
-                    print("Displaying frame...")
+                    # Show frame with latency overlay
+                    cv2.putText(
+                        display_frame,
+                        f"Latency: {latency:.2f}s",
+                        (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,
+                        (0, 0, 255),
+                        2
+                    )
                     cv2.imshow('YOLO Detections', display_frame)
                     cv2.waitKey(1)
-                    print("Frame displayed, loop complete")
 
                 except queue.Empty:
-                    print("Queue empty, continuing...")
                     continue
                 except Exception as e:
                     print(f"Error in processing loop: {e}")
