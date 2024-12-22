@@ -12,7 +12,7 @@
 
 ### Data Collection
 
-Steps 1-3 are for virtual robot setup, while steps 4-5 are for running data collection on either a real or virtual robot.
+Steps 1-3 are for virtual robot setup only, while steps 4-5 are for running data collection on either a real or virtual robot.
 
 #### Virtual Robot Setup (optional if you only want to use the real robot)
 
@@ -27,12 +27,12 @@ dts matrix run --standalone -m [/path/to/dts/map]
 
 First, create a virtual bot if you don't have one already:
 ```shell
-dts duckiebot virtual create -t duckiebot [VBOT_NAME] -c DB21J
+dts duckiebot virtual create -t duckiebot [BOT_NAME] -c DB21J
 ```
 
 Then, start the virtual bot:
 ```shell
-dts duckiebot virtual start [VBOT_NAME]
+dts duckiebot virtual start [BOT_NAME]
 ```
 
 This might take a few seconds, you can check when the virtual bot is ready with the command ```dts fleet discover```
