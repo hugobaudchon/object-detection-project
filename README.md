@@ -10,11 +10,11 @@
 
 ---
 
-### Data Collection
+## Data Collection
 
 Steps 1-3 are for virtual robot setup only, while steps 4-5 are for running data collection on either a real or virtual robot.
 
-#### Virtual Robot Setup (optional if you only want to use the real robot)
+### Virtual Robot Setup (optional if you only want to use the real robot)
 
 1. *Start the simulation*:  
 
@@ -44,7 +44,7 @@ Once the virtual bot is ready, you can attach it to the previously started ducki
 dts matrix attach [BOT_NAME] "map_0/vehicle_0"
 ```
 
-#### Data collection (real and virtual robot)
+### Data collection (real and virtual robot)
 4. *Start keyboard controls*:
 
 Run the following command to start the keyboard controls for the robot (real or virtual):
@@ -71,15 +71,15 @@ python data_collection/rosbag_image_extractor.py \
 ```
 
 
-### Automatic Labeling  
+## Automatic Labeling  
 
-#### TODO
+### TODO
 
-### Model Training
+## Model Training
 
-#### TODO
+### TODO
 
-### Integration with the robot
+## Integration with the robot
 
 First, you need to build and run the object detection package on the robot:
 ```
