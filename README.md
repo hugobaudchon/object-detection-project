@@ -81,14 +81,20 @@ python data_collection/rosbag_image_extractor.py \
 
 ### Integration with the robot
 
-for the robot script:
+First, you need to build and run the object detection package on the robot:
 ```
 dts devel build -H didibot -f --verbose
 dts devel run -H didibot -L object-detection -X
 ```
 
-for the laptop script (running the detection model):
-IMPORTANT: check the output of dts devel run for the IP and update it in the command below:
+This will start streaming camera images to the laptop through a TCP connection.
+The laptop will run the object detection model and send the detections back to the robot, which will publish them as a ROS topic.
+
+Once the object detection package is running on the robot, you can run the client on the laptop to receive the images and send back the detections:
+
+IMPORTANT: check the output of ```dts devel run [...]``` for the IP and update it in the command below.
+
+You will also have to point the script to the YOLO model weights .pt file.
 ```
 python yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
