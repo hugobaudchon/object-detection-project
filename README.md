@@ -61,6 +61,8 @@ ssh-copy-id duckie@[BOT_NAME].local
 ```
 
 Then, run the following command to start collecting data. You will be prompted to press "Enter" twice to 1) start recording and 2) stop recording. You should use the keyboard controls previously started to move the robot around while collecting.
+
+--output_dir should be a path on your computer, as the script will automatically download the images from the robot to your computer.
 ```shell
 python data_collection/rosbag_image_extractor.py \
  --robot_name [BOT_NAME] \
