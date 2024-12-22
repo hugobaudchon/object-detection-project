@@ -118,9 +118,11 @@ def collect_data(args):
     )
 
     copy_script_command = f"docker cp {remote_script_path} {docker_container_name}:/home/duckie/bag_to_images.py"
+
     # Step 1: Copy the `bag_to_images.py` script to the robot
     print("Copying the image extraction script to the robot...")
-    transfer_file_to_robot(args.local_script, args.robot_name, remote_script_path)
+    bag_to_image_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bag_to_images.py")
+    transfer_file_to_robot(bag_to_image_script, args.robot_name, remote_script_path)
     ssh_and_run_command(args.robot_name, copy_script_command, args.password)
 
     # Step 2: SSH into the robot and start rosbag recording
@@ -154,15 +156,12 @@ def collect_data(args):
     )
 
 
-
-
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(description="SSH into a virtual robot, run image extraction, and transfer images.")
     parser.add_argument("--robot_name", help="Robot's hostname.")
     parser.add_argument("--password", help="Robot's password.")
     parser.add_argument("--output_dir", help="Local directory to save extracted images.")
-    parser.add_argument("--local_script", help="Path to the local bag_to_images.py script.")
 
     args = parser.parse_args()
 

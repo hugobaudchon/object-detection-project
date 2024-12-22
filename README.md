@@ -3,7 +3,7 @@
 **Authors:** Michell Payano, Aristides Milios, Hugo Baudchon
 
 ## Summary of Steps  
-1. **Data Collection**: Gathering data with both the real & virtual robots to train our object detection model.  
+1. **Data Collection**: Gathering camera images data with both the real & virtual robots to train our object detection model.  
 2. **Automatic Labeling**: Automatically labeling the data using a pretrained Language-Vision model.
 3. **Model Training**: Building and training the object detection model.  
 4. **Integration with the robot**: The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which publishes them as a ROS topic.
@@ -52,9 +52,18 @@ Run the following command to start the keyboard controls for the robot (real or 
 dts duckiebot keyboard_control [BOT_NAME]
 ```
 
-5. 
+5. *Collect data*:
 
+We highly recommend setuping the automatic ssh key with the robot to avoid typing the password multiple times within the script, especially if you run the script multiple time under different environment conditions (lightning, objects placement...):
 
+```shell
+ssh-copy-id duckie@[BOT_NAME].local
+```
+
+Then, run the following command to start collecting data. You will be prompted to press "Enter" twice to 1) start recording and 2) stop recording. You should use the keyboard controls previously started to move the robot around while collecting.
+```shell
+python data_collection/rosbag_image_extractor.py --robot_name [BOT_NAME] --password quackquack --output_dir [path/to/output/folder] --local_script ./data_collection/bag_to_images.py
+```
 
 
 ### Model Training  
