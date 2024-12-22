@@ -96,5 +96,5 @@ IMPORTANT: check the output of ```dts devel run [...]``` for the IP and update i
 
 You will also have to point the script to the YOLO model weights .pt file.
 ```
-python yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
+python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
