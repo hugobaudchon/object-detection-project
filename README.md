@@ -66,7 +66,7 @@ python data_collection/rosbag_image_extractor.py --robot_name [BOT_NAME] --passw
 ```
 
 
-### Model Training  
+### Automatic Labeling  
 
 #### TODO
 
