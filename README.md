@@ -2,9 +2,24 @@
 
 **Authors:** Michell Payano, Aristides Milios, Hugo Baudchon
 
+## Quickstart
+
+```
+dts devel build -H [bot_name] -f --verbose
+dts devel run -H [bot_name] -L object-detection -X
+```
+
+in a separate terminal (use a venv if you want but be careful about installing it in the project directory because it might be copied over to the robot accidentally and fill up its entire storage):
+
+```
+pip install ultralytics
+pip install opencv-python
+python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
+```
+
 ## Summary of Steps  
 1. **Data Collection**: Gathering camera images data with both the real & virtual robots to train our object detection model.  
-2. **Automatic Labeling**: Automatically labeling the data using a pretrained Language-Vision model.
+2. **Automatic Labelling**: Automatically labeling the data using a pretrained Vision LLM (VLLM).
 3. **Model Training**: Building and training the object detection model.  
 4. **Integration with the robot**: The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which publishes them as a ROS topic.
 
@@ -71,9 +86,39 @@ python data_collection/rosbag_image_extractor.py \
 ```
 
 
-## Automatic Labeling  
+## Automatic Labelling  
 
-### TODO
+The automated labelling is done through the [OWLv2 model](https://huggingface.co/docs/transformers/en/model_doc/owlv2), powered by the [Huggingface](https://huggingface.co/) library for inference. Specifically we use [this version](https://huggingface.co/google/owlv2-base-patch16-ensemble) of the model for our inference, as we found it struck a good balance between inference speed and annotation quality.
+
+OWLv2 is an open-vocabulary (open-domain) detection model. That is to say, at inference time and with no training, it is able to accept a "class list" (effectively a short description of each class), and based on its understanding of these descriptions, produce bounding boxes around the corresponding objects in the image in zero-shot.
+
+The labelling script is run as follows:
+
+```
+python automated_data_labelling/process_images.py
+```
+
+The key parameters of this script, located at the top of the file, are:
+
+```
+zip_file_images_folder = "duckietown_images" # directory name containing the images for labelling
+DETECTION_THRESHOLD = 0.2 # the certainty threshold under which we discard bounding boxes
+CONTAINMENT_THRESHOLD = 0.7 # see footnote about failure case with many similar objs
+class_list = [
+    "rc car",
+    "yellow rubber duckie",
+    "small orange traffic cone",
+    "wooden toy house",
+    "qr code",
+    "road sign"
+] 
+``
+
+The script produces a `labels` subdirectory in the original directory that contains the bounding boxes in YOLO format to be ingested by the subsequent training scripts.
+
+The script contains a `visualize_detection` function that can be used to visually inspect the quality of the annotations for a given image in the folder. It is not currently being used by the script (the script used to be a notebook where the results were visualized interactively, but this version is meant to run on a cluster for faster inference).
+
+The `process_images.py` script also discards the failure case of OWLv2 where, when many small bounding boxes of the same class exist close together, OWLv2 creates another large bounding box that encapsulates them all together, along with the small bounding boxes of the individual objects. Some clever code in the script discards these larger bounding boxes.
 
 ## Model Training
 
@@ -98,3 +143,7 @@ You will also have to point the script to the YOLO model weights .pt file.
 ```
 python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
+
+## Common Issues
+
+1. Make sure that extraneous directories aren't being copied over to fill up the robot's storage (e.g. venvs)
