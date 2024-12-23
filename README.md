@@ -118,9 +118,9 @@ The script produces a `labels` subdirectory in the original directory that conta
 
 The script contains a `visualize_detection` function that can be used to visually inspect the quality of the annotations for a given image in the folder. It is not currently being used by the script (the script used to be a notebook where the results were visualized interactively, but this version is meant to run on a cluster for faster inference).
 
-### Footnote about CONTAINMENT_THRESHOLD parameter:
+### Footnote about `CONTAINMENT_THRESHOLD` parameter:
 
-The `process_images.py` script also discards the failure case of OWLv2 where, when many small bounding boxes of the same class exist close together, OWLv2 creates another large bounding box that encapsulates them all together, along with the small bounding boxes of the individual objects. Some clever code in the script discards these larger bounding boxes.
+The `process_images.py` script also discards the failure case of OWLv2 where, when many small bounding boxes of the same class exist close together, OWLv2 creates another large bounding box that encapsulates them all together, along with the small bounding boxes of the individual objects. Some clever code in the script discards these larger bounding boxes. The `CONTAINMENT_THRESHOLD` parameter determines how much overlap there needs to be for the larger bounding box to be discarded. Specifically, it controls how much of the small box needs to be contained in the large box for discarding to occur. 
 
 ## Model Training
 
