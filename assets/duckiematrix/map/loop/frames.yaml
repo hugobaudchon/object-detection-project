@@ -1,0 +1,651 @@
+version: 1.0
+frames:
+  map_0:
+    relative_to: ~
+    pose:
+      x: 0.0
+      y: 0.0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0
+  map_0/tile_0_0:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 0
+      y: 0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: -1.5706806282723
+  map_0/tile_0_1:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 0
+      y: 1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_0_2:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 0
+      y: 2
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.1415
+  map_0/tile_0_3:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 0
+      y: 3
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_0_4:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 0
+      y: 4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.141592654
+  map_0/tile_1_0:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 1
+      y: 0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_1_1:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 1
+      y: 1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_1_2:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 1
+      y: 2
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_1_3:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 1
+      y: 3
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_1_4:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 1
+      y: 4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_2_0:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 2
+      y: 0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_2_1:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 2
+      y: 1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_2_2:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 2
+      y: 2
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_2_3:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 2
+      y: 3
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_2_4:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 2
+      y: 4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_3_0:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 3
+      y: 0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_3_1:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 3
+      y: 1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_3_2:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 3
+      y: 2
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_3_3:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 3
+      y: 3
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_3_4:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 3
+      y: 4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5706806282723
+  map_0/tile_4_0:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 4
+      y: 0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_4_1:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 4
+      y: 1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_4_2:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 4
+      y: 2
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_4_3:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 4
+      y: 3
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/tile_4_4:
+    relative_to: ~
+    unit: tiles
+    pose:
+      x: 4
+      y: 4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.5707963267948966
+  map_0/vehicle_0/camera:
+    relative_to: ~
+    pose:
+      x: 0
+      y: 0
+      z: 0
+      roll: 0
+      pitch: 0.5
+      yaw: 0
+  map_0/vehicle_0:
+    relative_to: ~
+    pose:
+      x: 0.8799999999999999
+      y: 0.18499999999999986
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  map_0/vehicle_1:
+    relative_to: ~
+    pose:
+      x: 0.88
+      y: 0.99
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.6
+  map_0/vehicle_2:
+    relative_to: ~
+    pose:
+      x: 1.35
+      y: 0.99
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: -1.2
+  map_0/groundtag_300:
+    relative_to: ~
+    pose:
+      x: 0.86
+      y: 2.045
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.0
+  # Center ducks (10)
+  map_0/duckie_center1:
+    relative_to: ~
+    pose:
+      x: 0.8
+      y: 0.8
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.785
+  map_0/duckie_center2:
+    relative_to: ~
+    pose:
+      x: 1.1
+      y: 0.7
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.356
+  map_0/duckie_center3:
+    relative_to: ~
+    pose:
+      x: 0.9
+      y: 1.0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.927
+  map_0/duckie_center4:
+    relative_to: ~
+    pose:
+      x: 1.2
+      y: 0.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 5.498
+  map_0/duckie_center5:
+    relative_to: ~
+    pose:
+      x: 1.0
+      y: 0.8
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.571
+  map_0/duckie_center6:
+    relative_to: ~
+    pose:
+      x: 1.0
+      y: 1.1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 4.189
+  map_0/duckie_center7:
+    relative_to: ~
+    pose:
+      x: 0.7
+      y: 0.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.618
+  map_0/duckie_center8:
+    relative_to: ~
+    pose:
+      x: 1.1
+      y: 0.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 5.236
+  map_0/duckie_center9:
+    relative_to: ~
+    pose:
+      x: 0.9
+      y: 0.7
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.047
+  map_0/duckie_center10:
+    relative_to: ~
+    pose:
+      x: 0.8
+      y: 1.1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.665
+  # Road ducks (5)
+  map_0/duckie_road1:
+    relative_to: ~
+    pose:
+      x: 0.5
+      y: 0.5
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.047
+  map_0/duckie_road2:
+    relative_to: ~
+    pose:
+      x: 1.4
+      y: 0.5
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 4.712
+  map_0/duckie_road3:
+    relative_to: ~
+    pose:
+      x: 1.4
+      y: 1.4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.967
+  map_0/duckie_road4:
+    relative_to: ~
+    pose:
+      x: 0.5
+      y: 1.4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.665
+  map_0/duckie_road5:
+    relative_to: ~
+    pose:
+      x: 0.9
+      y: 1.4
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 5.236
+ # Outside ducks (20) - moved further out
+  map_0/duckie_outside1:
+    relative_to: ~
+    pose:
+      x: 0.1
+      y: 0.1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.094
+  map_0/duckie_outside2:
+    relative_to: ~
+    pose:
+      x: 1.9
+      y: 0.1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.927
+  map_0/duckie_outside3:
+    relative_to: ~
+    pose:
+      x: 0.1
+      y: 1.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.524
+  map_0/duckie_outside4:
+    relative_to: ~
+    pose:
+      x: 1.9
+      y: 1.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.047
+  map_0/duckie_outside5:
+    relative_to: ~
+    pose:
+      x: 1.0
+      y: 0.1
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 4.712
+  map_0/duckie_outside6:
+    relative_to: ~
+    pose:
+      x: 0.1
+      y: 1.0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 5.498
+  map_0/duckie_outside7:
+    relative_to: ~
+    pose:
+      x: 1.9
+      y: 1.0
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.356
+  map_0/duckie_outside8:
+    relative_to: ~
+    pose:
+      x: 1.0
+      y: 1.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.141
+  map_0/duckie_outside9:
+    relative_to: ~
+    pose:
+      x: 0.2
+      y: 1.7
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.785
+  map_0/duckie_outside10:
+    relative_to: ~
+    pose:
+      x: 1.7
+      y: 0.2
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.571
+  map_0/duckie_outside11:
+    relative_to: ~
+    pose:
+      x: 0.15
+      y: 0.15
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.262
+  map_0/duckie_outside12:
+    relative_to: ~
+    pose:
+      x: 1.85
+      y: 0.15
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.309
+  map_0/duckie_outside13:
+    relative_to: ~
+    pose:
+      x: 0.15
+      y: 1.85
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.618
+  map_0/duckie_outside14:
+    relative_to: ~
+    pose:
+      x: 1.85
+      y: 1.85
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.927
+  map_0/duckie_outside15:
+    relative_to: ~
+    pose:
+      x: 0.9
+      y: 0.15
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 5.236
+  map_0/duckie_outside16:
+    relative_to: ~
+    pose:
+      x: 0.15
+      y: 0.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 4.189
+  map_0/duckie_outside17:
+    relative_to: ~
+    pose:
+      x: 1.85
+      y: 0.9
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.094
+  map_0/duckie_outside18:
+    relative_to: ~
+    pose:
+      x: 0.9
+      y: 1.85
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0.785
+  map_0/duckie_outside19:
+    relative_to: ~
+    pose:
+      x: 0.3
+      y: 0.15
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 3.403
+  map_0/duckie_outside20:
+    relative_to: ~
+    pose:
+      x: 1.7
+      y: 1.85
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 1.832
+  map_0/billboard_1:
+    relative_to: ~
+    pose:
+      x: 1.0
+      y: -0.24
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 0
+  map_0/street_light_0:
+    relative_to: ~
+    pose:
+      x: 0.6
+      y: 0.6
+      z: 0
+      roll: 0
+      pitch: 0
+      yaw: 2.356
+  map_0/vehicle_0/cameraman_0:
+    relative_to: ~
+    pose:
+      x: -0.4
+      y: 0.0
+      z: 0.2
+      roll: 0
+      pitch: 0
+      yaw: 0.0
