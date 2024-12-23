@@ -27,7 +27,7 @@ CLASS_COLORS = {
 
 def main():
     # Initialize YOLO
-    model = YOLO('/home/hugo/PycharmProjects/object-detection-project/packages/object_detection/include/weights/best.pt')
+    model = YOLO('/weights/best.pt')
     if torch.cuda.is_available():
         device = f"cuda:0"
         torch.cuda.set_device(device)

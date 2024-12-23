@@ -163,7 +163,7 @@ Once the object detection package is running on the robot, you can run the clien
 
 IMPORTANT: check the output of ```dts devel run [...]``` for the IP and update it in the command below.
 
-You will also have to point the script to the YOLO model weights .pt file.
+You will also have to point the script to the YOLO model weights .pt file. We provide our best YOLO model weights at ```/weights/best.pt``` [here](weights/).
 ```
 python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
