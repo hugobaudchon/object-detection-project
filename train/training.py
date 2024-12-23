@@ -47,7 +47,7 @@ copy_files(val_files, val_images_folder, val_labels_folder)
 # Define the data to write to the YAML file that is used in the YOLO model
 data = {
     'train': '/dataset_split/train/images',
-    'val': '/dataset_split/val/images'
+    'val': '/dataset_split/val/images',
 
     'nc': 6,
     'names': [
