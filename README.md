@@ -23,6 +23,11 @@ python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model
 3. [**Model Training**](#model-training): Building and training the object detection model.  
 4. [**Integration with the robot**](#integration-with-the-robot): The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which then uses them in turn to control its motors.
 
+#### Other sections (quick links):
+
+[**Description of Code Architecture**](#description-of-code-architecture)
+[**Common Issues**](#common-issues)
+
 ---
 
 ## Data Collection
