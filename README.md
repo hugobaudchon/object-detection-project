@@ -3,22 +3,140 @@
 This template provides a boilerplate repository
 for developing ROS-based software in Duckietown.
 
+<<<<<<< Updated upstream
 **NOTE:** If you want to develop software that does not use
 ROS, check out [this template](https://github.com/duckietown/template-basic).
 
 
 ## How to use it
 
+=======
+## Quickstart
+
+```
+dts devel build -H [bot_name] -f --verbose
+dts devel run -H [bot_name] -L object-detection -X
+```
+
+in a separate terminal (use a venv if you want but be careful about installing it in the project directory because it might be copied over to the robot accidentally and fill up its entire storage):
+
+```
+pip install ultralytics
+pip install opencv-python
+python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
+```
+
+## Summary of Steps  
+1. **Data Collection**: Gathering camera images data with both the real & virtual robots to train our object detection model.  
+2. **Automatic Labelling**: Automatically labeling the data using a pretrained Vision LLM (VLLM).
+3. **Model Training**: Building and training the object detection model.  
+4. **Integration with the robot**: The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which publishes them as a ROS topic.
+
+---
+
+## Data Collection
+
+Steps 1-3 are for virtual robot setup only, while steps 4-5 are for running data collection on either a real or virtual robot.
+
+### Virtual Robot Setup (optional if you only want to use the real robot)
+
+1. *Start the simulation*:  
+
+Run the following shell command to start the duckiematrix. There is a custom loop in ```./assets/duckiematrix/loop``` with additional duckies and static robots.
+```shell
+dts matrix run --standalone -m [/path/to/dts/map]
+```
+
+2. *Start a virtual bot*:
+
+First, create a virtual bot if you don't have one already:
+```shell
+dts duckiebot virtual create -t duckiebot [BOT_NAME] -c DB21J
+```
+
+Then, start the virtual bot:
+```shell
+dts duckiebot virtual start [BOT_NAME]
+```
+
+This might take a few seconds, you can check when the virtual bot is ready with the command ```dts fleet discover```
+
+3. *Attach the virtual bot to the duckiematrix*:
+
+Once the virtual bot is ready, you can attach it to the previously started duckiematrix:
+```shell
+dts matrix attach [BOT_NAME] "map_0/vehicle_0"
+```
+
+### Data collection (real and virtual robot)
+4. *Start keyboard controls*:
+
+Run the following command to start the keyboard controls for the robot (real or virtual):
+```shell
+dts duckiebot keyboard_control [BOT_NAME]
+```
+
+5. *Collect data*:
+
+We highly recommend setuping the automatic ssh key with the robot to avoid typing the password multiple times within the script, especially if you run the script multiple time under different environment conditions (lightning, objects placement...):
+
+```shell
+ssh-copy-id duckie@[BOT_NAME].local
+```
+
+Then, run the following command to start collecting data. You will be prompted to press "Enter" twice to 1) start recording and 2) stop recording. You should use the keyboard controls previously started to move the robot around while collecting.
+
+--output_dir should be a path on your computer, as the script will automatically download the images from the robot to your computer.
+```shell
+python data_collection/rosbag_image_extractor.py \
+ --robot_name [BOT_NAME] \
+ --password quackquack \
+ --output_dir [path/to/output/folder]
+```
+
+
+## Automatic Labelling  
+
+The automated labelling is done through the [OWLv2 model](https://huggingface.co/docs/transformers/en/model_doc/owlv2), powered by the [Huggingface](https://huggingface.co/) library for inference. Specifically we use [this version](https://huggingface.co/google/owlv2-base-patch16-ensemble) of the model for our inference, as we found it struck a good balance between inference speed and annotation quality.
+
+OWLv2 is an open-vocabulary (open-domain) detection model. That is to say, at inference time and with no training, it is able to accept a "class list" (effectively a short description of each class), and based on its understanding of these descriptions, produce bounding boxes around the corresponding objects in the image in zero-shot.
+
+The labelling script is run as follows:
+
+```
+python automated_data_labelling/process_images.py
+```
+
+The key parameters of this script, located at the top of the file, are:
+
+```
+zip_file_images_folder = "duckietown_images" # directory name containing the images for labelling
+DETECTION_THRESHOLD = 0.2 # the certainty threshold under which we discard bounding boxes
+class_list = [
+    "rc car",
+    "yellow rubber duckie",
+    "small orange traffic cone",
+    "wooden toy house",
+    "qr code",
+    "road sign"
+] 
+``
+
+The script produces a `labels` subdirectory in the original directory that contains the bounding boxes in YOLO format to be ingested by the subsequent training scripts.
+
+The script contains a `visualize_detection` function that can be used to visually inspect the quality of the annotations for a given image in the folder. It is not currently being used by the script (the script used to be a notebook where the results were visualized interactively, but this version is meant to run on a cluster for faster inference).
+>>>>>>> Stashed changes
 
 for the robot script:
 ```
-dts devel build -H didibot -f --verbose
-dts devel run -H didibot -L object-detection -X
+dts devel build -H [bot_name] -f --verbose
+dts devel run -H [bot_name] -L object-detection -X
 ```
 
 for the laptop script (running the detection model):
 IMPORTANT: check the output of dts devel run for the IP and update it in the command below:
 ```
+<<<<<<< Updated upstream
 python yolo_client.py 172.19.0.143 --port 8765 --model /home/hugo/PycharmProjects/object-detection-project/packages/object_detection/include/weights/best.pt
 ```
 
@@ -59,3 +177,11 @@ a launcher will be created for it. For example, the script file
 
 When launching a new container, you can simply provide `dt-launcher-my-launcher` as
 command.
+=======
+python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
+```
+
+## Common Issues
+
+1. Make sure that extraneous directories aren't being copied over to fill up the robot's storage (e.g. venvs)
+>>>>>>> Stashed changes
