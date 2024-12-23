@@ -15,17 +15,12 @@ train_images_folder = os.path.join(dest_base, "train/images")
 train_labels_folder = os.path.join(dest_base, "train/labels")
 val_images_folder = os.path.join(dest_base, "val/images")
 val_labels_folder = os.path.join(dest_base, "val/labels")
-test_images_folder = os.path.join(dest_base, "test/images")
-test_labels_folder = os.path.join(dest_base, "test/labels")
 
 # Create destination folders
 os.makedirs(train_images_folder, exist_ok=True)
 os.makedirs(train_labels_folder, exist_ok=True)
 os.makedirs(val_images_folder, exist_ok=True)
 os.makedirs(val_labels_folder, exist_ok=True)
-os.makedirs(test_images_folder, exist_ok=True)
-os.makedirs(test_labels_folder, exist_ok=True)
-
 
 images = sorted([f for f in os.listdir(images_folder) if f.endswith(".jpg")])
 labels = sorted([f for f in os.listdir(labels_folder) if f.endswith(".txt")])
@@ -33,14 +28,12 @@ paired_files = [(img, img.replace(".jpg", ".txt")) for img in images if os.path.
 
 random.shuffle(paired_files)
 
-# Split data: 70% train/ 20% val/ 10% test
+# Split data: 80% train/ 20% val/ 
 total_files = len(paired_files)
-train_split = int(0.7 * total_files)
-val_split = int(0.9 * total_files)
+train_split = int(0.8 * total_files)
 
 train_files = paired_files[:train_split]
-val_files = paired_files[train_split:val_split]
-test_files = paired_files[val_split:]
+val_files = paired_files[train_split:]
 
 def copy_files(file_list, dest_images, dest_labels):
     for img, lbl in file_list:
@@ -50,15 +43,11 @@ def copy_files(file_list, dest_images, dest_labels):
 # Copy files to respective folders
 copy_files(train_files, train_images_folder, train_labels_folder)
 copy_files(val_files, val_images_folder, val_labels_folder)
-copy_files(test_files, test_images_folder, test_labels_folder)
-
-
 
 # Define the data to write to the YAML file that is used in the YOLO model
 data = {
     'train': '/dataset_split/train/images',
-    'val': '/dataset_split/val/images',
-    'test': '/dataset_split/test/images',
+    'val': '/dataset_split/val/images'
 
     'nc': 6,
     'names': [
