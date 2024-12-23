@@ -124,6 +124,24 @@ The `process_images.py` script also discards the failure case of OWLv2 where, wh
 
 ## Model Training
 
+In this project, we used for object detection the models based on You Only Look Once [YOLO](https://docs.ultralytics.com/) version architectures. The YOLO architecture is renowned for its exceptional speed and accuracy in object detection. Unlike traditional methods that involve multiple stages for detecting and classifying objects, YOLO treats object detection as a single regression problem, directly predicting bounding boxes and class probabilities in one forward pass through the network. This design enables real-time performance, making YOLO particularly advantageous for applications requiring fast inference, such as autonomous vehicles, surveillance, and robotics.
+
+For this case, we tried the pre-trained nano/tiny versions of the models versions 5, 8, 9, 10 and 11, where each was trained for 100 epochs. In the table below we can see some configuration each model and the result in the validation set. The MaP50 corresponds to the Mean Average Precision at an intersection over union (IoU) threshold of 0.5. It is a standard evaluation metric for object detection, summarizing precision and recall across all classes.
+
+
+| Model      | Layers       | Parameters  | MaP50       |
+|:-----------|:------------:|------------:|------------:|
+| YOLOv5n    | 262          | 2,654,816   | 0.835       |
+| YOLOv8n    | 225          | 3,157,200   | 0.848       |
+| YOLOv9t    | 917          | 2,128,720   | 0.843       |
+| YOLOv10n   | 385          | 2,775,520   | 0.836       |
+| YOLOv11n   | 319          | 2,624,080   | 0.846       |
+
+Since these models show almost a similar performance, for simplicty, we decided to use the YOLOv5n as it is widly used in the duckietown community. In the plot below we can see the loss associated with the bounding box detection and the loss associated with the class prediction for both the training and validation sets, where each one present a downward trend. Also we can see for the validation, the Map50 and Map50-95, which are the mean average precision at IoU 0.5 and the mean average precision averaged across multiple IoU (from 0.5 to 0.95). Both lines present an upward trend, showing that the model in improving its detection performance acrosss all classes, especially for tighter bounding box overlaps.
+
+
+![results_training](https://github.com/hugobaudchon/object-detection-project/blob/v3/results_plot.png?raw=true)
+
 ### TODO
 
 ## Integration with the robot
