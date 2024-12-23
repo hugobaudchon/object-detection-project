@@ -11,3 +11,6 @@
 !whl_builder
 # YOUR FILES LISTED BELOW THIS LINE (IMPORTANT: PREPEND !)
 # ----------------------------------------------------------------------------
+
+assets/duckiematrix
+weights
