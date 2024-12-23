@@ -162,7 +162,7 @@ You will also have to point the script to the YOLO model weights .pt file.
 ```
 python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
-After integrating all these components we can see that as result our duckiebot successfully stops whenever it sees a duckie (or any object specified to detect):
+After integrating all these components we can see that as result our duckiebot successfully stops whenever it sees a duckie (or any object specified to detect in the [object_detection_node.py](packages/object_detection/src/object_detection/object_detection_node.py) in the self.duckie_class_id):
 
 ![video](images/video.gif)
 
