@@ -140,9 +140,8 @@ For this case, we tried the pre-trained nano/tiny versions of the models version
 Since these models show almost a similar performance, for simplicty, we decided to use the YOLOv5n as it is widly used in the duckietown community. In the plot below we can see the loss associated with the bounding box detection and the loss associated with the class prediction for both the training and validation sets, where each one present a downward trend. Also we can see for the validation, the Map50 and Map50-95, which are the mean average precision at IoU 0.5 and the mean average precision averaged across multiple IoU (from 0.5 to 0.95). Both lines present an upward trend, showing that the model in improving its detection performance acrosss all classes, especially for tighter bounding box overlaps.
 
 
-![results_training](https://github.com/hugobaudchon/object-detection-project/blob/v3/results_plot.png?raw=true)
+![results_training](https://github.com/hugobaudchon/object-detection-project/blob/v3/images/results_plot.png?raw=true)
 
-### TODO
 
 ## Integration with the robot
 
