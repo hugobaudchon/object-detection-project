@@ -1,34 +1,10 @@
-# Template: template-ros
+# Object Detection Project
 
-This template provides a boilerplate repository
-for developing ROS-based software in Duckietown.
-
-<<<<<<< Updated upstream
-**NOTE:** If you want to develop software that does not use
-ROS, check out [this template](https://github.com/duckietown/template-basic).
-
-
-## How to use it
-
-=======
-## Quickstart
-
-```
-dts devel build -H [bot_name] -f --verbose
-dts devel run -H [bot_name] -L object-detection -X
-```
-
-in a separate terminal (use a venv if you want but be careful about installing it in the project directory because it might be copied over to the robot accidentally and fill up its entire storage):
-
-```
-pip install ultralytics
-pip install opencv-python
-python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
-```
+**Authors:** Michell Payano, Aristides Milios, Hugo Baudchon
 
 ## Summary of Steps  
 1. **Data Collection**: Gathering camera images data with both the real & virtual robots to train our object detection model.  
-2. **Automatic Labelling**: Automatically labeling the data using a pretrained Vision LLM (VLLM).
+2. **Automatic Labeling**: Automatically labeling the data using a pretrained Language-Vision model.
 3. **Model Training**: Building and training the object detection model.  
 4. **Integration with the robot**: The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which publishes them as a ROS topic.
 
@@ -95,93 +71,30 @@ python data_collection/rosbag_image_extractor.py \
 ```
 
 
-## Automatic Labelling  
+## Automatic Labeling  
 
-The automated labelling is done through the [OWLv2 model](https://huggingface.co/docs/transformers/en/model_doc/owlv2), powered by the [Huggingface](https://huggingface.co/) library for inference. Specifically we use [this version](https://huggingface.co/google/owlv2-base-patch16-ensemble) of the model for our inference, as we found it struck a good balance between inference speed and annotation quality.
+### TODO
 
-OWLv2 is an open-vocabulary (open-domain) detection model. That is to say, at inference time and with no training, it is able to accept a "class list" (effectively a short description of each class), and based on its understanding of these descriptions, produce bounding boxes around the corresponding objects in the image in zero-shot.
+## Model Training
 
-The labelling script is run as follows:
+### TODO
 
-```
-python automated_data_labelling/process_images.py
-```
+## Integration with the robot
 
-The key parameters of this script, located at the top of the file, are:
-
-```
-zip_file_images_folder = "duckietown_images" # directory name containing the images for labelling
-DETECTION_THRESHOLD = 0.2 # the certainty threshold under which we discard bounding boxes
-class_list = [
-    "rc car",
-    "yellow rubber duckie",
-    "small orange traffic cone",
-    "wooden toy house",
-    "qr code",
-    "road sign"
-] 
-``
-
-The script produces a `labels` subdirectory in the original directory that contains the bounding boxes in YOLO format to be ingested by the subsequent training scripts.
-
-The script contains a `visualize_detection` function that can be used to visually inspect the quality of the annotations for a given image in the folder. It is not currently being used by the script (the script used to be a notebook where the results were visualized interactively, but this version is meant to run on a cluster for faster inference).
->>>>>>> Stashed changes
-
-for the robot script:
+First, you need to build and run the object detection package on the robot:
 ```
 dts devel build -H [bot_name] -f --verbose
 dts devel run -H [bot_name] -L object-detection -X
 ```
 
-for the laptop script (running the detection model):
-IMPORTANT: check the output of dts devel run for the IP and update it in the command below:
+This will start streaming camera images to the laptop through a TCP connection.
+The laptop will run the object detection model and send the detections back to the robot, which will publish them as a ROS topic.
+
+Once the object detection package is running on the robot, you can run the client on the laptop to receive the images and send back the detections.
+
+IMPORTANT: check the output of ```dts devel run [...]``` for the IP and update it in the command below.
+
+You will also have to point the script to the YOLO model weights .pt file.
 ```
-<<<<<<< Updated upstream
-python yolo_client.py 172.19.0.143 --port 8765 --model /home/hugo/PycharmProjects/object-detection-project/packages/object_detection/include/weights/best.pt
-```
-
-
-### 1. Fork this repository
-
-Use the fork button in the top-right corner of the github page to fork this template repository.
-
-
-### 2. Create a new repository
-
-Create a new repository on github.com while
-specifying the newly forked template repository as
-a template for your new repository.
-
-
-### 3. Define dependencies
-
-List the dependencies in the files `dependencies-apt.txt` and
-`dependencies-py3.txt` (apt packages and pip packages respectively).
-
-
-### 4. Place your code
-
-Place your code in the directory `/packages/` of
-your new repository.
-
-
-### 5. Setup launchers
-
-The directory `/launchers` can contain as many launchers (launching scripts)
-as you want. A default launcher called `default.sh` must always be present.
-
-If you create an executable script (i.e., a file with a valid shebang statement)
-a launcher will be created for it. For example, the script file 
-`/launchers/my-launcher.sh` will be available inside the Docker image as the binary
-`dt-launcher-my-launcher`.
-
-When launching a new container, you can simply provide `dt-launcher-my-launcher` as
-command.
-=======
 python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
-
-## Common Issues
-
-1. Make sure that extraneous directories aren't being copied over to fill up the robot's storage (e.g. venvs)
->>>>>>> Stashed changes
