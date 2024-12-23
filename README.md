@@ -36,14 +36,14 @@ Steps 1-3 are for virtual robot setup only, while steps 4-5 are for running data
 
 ### Virtual Robot Setup (optional if you only want to use the real robot)
 
-1. *Start the simulation*:  
+#### 1. Start the simulation: ####  
 
 Run the following shell command to start the duckiematrix. There is a custom loop in ```./assets/duckiematrix/loop``` with additional duckies and static robots.
 ```shell
 dts matrix run --standalone -m [/path/to/dts/map]
 ```
 
-2. *Start a virtual bot*:
+#### 2. Start a virtual bot: ####
 
 First, create a virtual bot if you don't have one already:
 ```shell
@@ -57,7 +57,7 @@ dts duckiebot virtual start [BOT_NAME]
 
 This might take a few seconds, you can check when the virtual bot is ready with the command ```dts fleet discover```
 
-3. *Attach the virtual bot to the duckiematrix*:
+#### 3. Attach the virtual bot to the duckiematrix: ####
 
 Once the virtual bot is ready, you can attach it to the previously started duckiematrix:
 ```shell
@@ -65,14 +65,14 @@ dts matrix attach [BOT_NAME] "map_0/vehicle_0"
 ```
 
 ### Data collection (real and virtual robot)
-4. *Start keyboard controls*:
+#### 4. Start keyboard controls: ####
 
 Run the following command to start the keyboard controls for the robot (real or virtual):
 ```shell
 dts duckiebot keyboard_control [BOT_NAME]
 ```
 
-5. *Collect data*:
+#### 5. Collect data: ####
 
 We highly recommend setting up the automatic ssh key with the robot to avoid typing the password multiple times within the script, especially if you run the script more than once under different environment conditions (lightning, objects placement...):
 
