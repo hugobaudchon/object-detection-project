@@ -69,7 +69,7 @@ dts duckiebot keyboard_control [BOT_NAME]
 
 5. *Collect data*:
 
-We highly recommend setuping the automatic ssh key with the robot to avoid typing the password multiple times within the script, especially if you run the script multiple time under different environment conditions (lightning, objects placement...):
+We highly recommend setting up the automatic ssh key with the robot to avoid typing the password multiple times within the script, especially if you run the script more than once under different environment conditions (lightning, objects placement...):
 
 ```shell
 ssh-copy-id duckie@[BOT_NAME].local
