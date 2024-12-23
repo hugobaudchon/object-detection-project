@@ -152,7 +152,7 @@ dts devel run -H [bot_name] -L object-detection -X
 ```
 
 This will start streaming camera images to the laptop through a TCP connection.
-The laptop will run the object detection model and send the detections back to the robot, which will publish them as a ROS topic.
+The laptop will run the object detection model and will send the detections back to the robot also via TCP, which the robot then uses to send motor commands.
 
 Once the object detection package is running on the robot, you can run the client on the laptop to receive the images and send back the detections.
 
@@ -162,11 +162,24 @@ You will also have to point the script to the YOLO model weights .pt file.
 ```
 python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model/weights.pt]
 ```
-After integrating all these components we can see that as result our duckiebot successfully stops whenever it sees a duckie (or any object specified to detect in the [object_detection_node.py](packages/object_detection/src/object_detection/object_detection_node.py) in the self.duckie_class_id):
+After integrating all these components we can see that as result our duckiebot successfully stops whenever it sees a duckie (or any object specified to detect in the [object_detection_node.py](packages/object_detection/src/object_detection/object_detection_node.py) in the `self.duckie_class_id`):
 
 ![video](images/video.gif)
+
+## Description of Code Architecture
+
+There are two important files, the [object detection node itself](packages/object_detection/src/object_detection/object_detection_node.py) and the [`yolo_client.py`](packages/client/yolo_client.py) which runs the YOLO model on the laptop.
+
+Things happen in the following sequence in this architecture:
+* ROS obj det node: collects camera images
+* ROS obj det node: sends images over TCP socket to the laptop
+* `yolo_client.py`: receives images over TCP socket from the robot
+* `yolo_client.py`: processes images via YOLO to produce bounding box info
+* `yolo_client.py`: sends bounding box info as JSON back over TCP to the robot
+* ROS obj det node: receives bounding box JSON from `yolo_client.py`
+* ROS obj det node: determines what motor commands to send via DTPS as a result of the bounding box info
 
 ## Common Issues
 
 1. Make sure that extraneous directories aren't being copied over to fill up the robot's storage (e.g. venvs)
-2. Make sure that the camera of the duckiebot is working, otherwise when running the code above you can get "Queue empty" message.
+2. Make sure that the camera node of the duckiebot is actually running/working (e.g. by checking the dashboard), otherwise when running the code above you will get repeated "Queue empty" messages.
