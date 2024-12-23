@@ -18,10 +18,10 @@ python client/yolo_client.py [tcp_ip_adress] --port 8765 --model [/path/to/model
 ```
 
 ## Summary of Steps  
-1. **Data Collection**: Gathering camera images data with both the real & virtual robots to train our object detection model.  
-2. **Automatic Labelling**: Automatically labeling the data using a pretrained Vision LLM (VLLM).
-3. **Model Training**: Building and training the object detection model.  
-4. **Integration with the robot**: The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which publishes them as a ROS topic.
+1. [**Data Collection**](#data-collection): Gathering camera images data with both the real & virtual robots to train our object detection model.  
+2. [**Automatic Labelling**](#automatic-labelling): Automatically labeling the data using a pretrained Vision LLM (VLLM).
+3. [**Model Training**](#model-training): Building and training the object detection model.  
+4. [**Integration with the robot**](#integration-with-the-robot): The model sends images to the laptop via TCP, and the laptop returns the detections back to the robot, which then uses them in turn to control its motors.
 
 ---
 
@@ -171,7 +171,7 @@ After integrating all these components we can see that as result our duckiebot s
 There are two important files, the [object detection node itself](packages/object_detection/src/object_detection/object_detection_node.py) and the [`yolo_client.py`](packages/client/yolo_client.py) which runs the YOLO model on the laptop.
 
 Things happen in the following sequence in this architecture:
-* ROS obj det node: collects camera images
+* ROS obj det node: collects camera images via ROS camera topic
 * ROS obj det node: sends images over TCP socket to the laptop
 * `yolo_client.py`: receives images over TCP socket from the robot
 * `yolo_client.py`: processes images via YOLO to produce bounding box info
