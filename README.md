@@ -126,7 +126,7 @@ The `process_images.py` script also discards the failure case of OWLv2 where, wh
 
 In this project, we used for object detection the models based on You Only Look Once [YOLO](https://docs.ultralytics.com/) version architectures. The YOLO architecture is renowned for its exceptional speed and accuracy in object detection. Unlike traditional methods that involve multiple stages for detecting and classifying objects, YOLO treats object detection as a single regression problem, directly predicting bounding boxes and class probabilities in one forward pass through the network. This design enables real-time performance, making YOLO particularly advantageous for applications requiring fast inference, such as autonomous vehicles, surveillance, and robotics.
 
-For this case, we tried the pre-trained nano/tiny versions of the models versions 5, 8, 9, 10 and 11, where each was trained for 100 epochs. In the table below we can see some configuration each model and the result in the validation set. The MaP50 corresponds to the Mean Average Precision at an intersection over union (IoU) threshold of 0.5. It is a standard evaluation metric for object detection, summarizing precision and recall across all classes.
+For this case, we tried the pre-trained nano/tiny versions of the models versions 5, 8, 9, 10 and 11, where each was trained for 100 epochs (see [training.py](train/training.py)). In the table below we can see some configuration each model and the result in the validation set. The MaP50 corresponds to the Mean Average Precision at an intersection over union (IoU) threshold of 0.5. It is a standard evaluation metric for object detection, summarizing precision and recall across all classes.
 
 
 | Model      | Layers       | Parameters  | MaP50       |
