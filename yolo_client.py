@@ -2,7 +2,6 @@
 import socket
 import cv2
 import numpy as np
-import base64
 import json
 import struct
 import threading
@@ -92,18 +91,16 @@ class YOLOClient:
                 message_length = struct.unpack('!I', length_data)[0]
 
                 # Read the actual message
-                message = b''
-                while len(message) < message_length:
-                    chunk = self.socket.recv(message_length - len(message))
+                jpeg_data = b''
+                while len(jpeg_data) < message_length:
+                    chunk = self.socket.recv(message_length - len(jpeg_data))
                     if not chunk:
                         raise ConnectionError("Connection closed while reading message")
-                    message += chunk
+                    jpeg_data += chunk
 
-                # Decode frame
-                encoded_frame = message.decode()
-                frame_data = base64.b64decode(encoded_frame)
+                # Decode JPEG data directly
                 frame = cv2.imdecode(
-                    np.frombuffer(frame_data, np.uint8),
+                    np.frombuffer(jpeg_data, np.uint8),
                     cv2.IMREAD_COLOR
                 )
 
@@ -234,7 +231,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description='YOLO client for Duckietown')
     parser.add_argument('robot_ip', help='IP address of the robot')
-    parser.add_argument('--port', type=int, default=8765, help='Port number')
+    parser.add_argument('--port', type=int, default=8766, help='Port number')
     parser.add_argument('--model', default='yolov8n.pt', help='Path to YOLO model')
     args = parser.parse_args()
 

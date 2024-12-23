@@ -4,7 +4,6 @@ import time
 import socket
 import json
 import cv2
-import base64
 import threading
 import struct
 import signal
@@ -199,29 +198,30 @@ class ObjectDetectionNode:
             traceback.print_exc()
 
     def camera_callback(self, msg):
-        """Handle incoming camera frames from ROS"""
         try:
             current_time = time.time()
-            # Rate limit frame sending
             if current_time - self.last_frame_time < self.min_frame_interval:
                 return
             
             self.last_frame_time = current_time
 
-            # Decode the compressed image
+            # Decode the JPEG data
             np_arr = np.frombuffer(msg.data, np.uint8)
             img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
             
-            # Re-encode with lower quality
-            _, buffer = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 50])  # Try 50% quality
-            encoded_frame = base64.b64encode(buffer).decode()
+            # Resize to smaller resolution (e.g., 640x480 or even 320x240)
+            # img = cv2.resize(img, (640, 480))
             
-            self.send_frame(encoded_frame)
+            # Re-encode with lower quality
+            encode_params = [cv2.IMWRITE_JPEG_QUALITY, 60]
+            _, compressed_jpeg = cv2.imencode('.jpg', img, encode_params)
+            
+            self.send_frame(compressed_jpeg.tobytes())
             self.frames_sent += 1
                 
         except Exception as e:
             print(f"Error in camera callback: {e}")
-
+    
     def run_server(self):
         """Run TCP server"""
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -305,20 +305,18 @@ class ObjectDetectionNode:
                     traceback.print_exc()
                     self.client_socket = None
 
-    def send_frame(self, encoded_frame):
+    def send_frame(self, jpeg_data):
         """Send frame to client"""
         with self.client_lock:
             if self.client_socket is None:
                 return
 
             try:
-                # Prepare and send message
-                message = encoded_frame.encode()
-                message_length = struct.pack('!I', len(message))
-                
+                # Send the length of the JPEG data followed by the data itself
+                message_length = struct.pack('!I', len(jpeg_data))
                 self.client_socket.sendall(message_length)
-                print(f"size of frame sent: {len(message)}")
-                self.client_socket.sendall(message)
+                print(f"Size of frame sent: {len(jpeg_data)} bytes")
+                self.client_socket.sendall(jpeg_data)
 
             except Exception as e:
                 print(f"Error sending frame: {e}")
