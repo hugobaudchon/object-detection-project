@@ -148,6 +148,7 @@ Since these models show almost a similar performance, for simplicty, we decided 
 ![results_training](https://github.com/hugobaudchon/object-detection-project/blob/v3/images/results_plot.png?raw=true)
 
 Below we can see an example of the inference in real time:
+
 ![inference](images/inference.gif)
 
 
