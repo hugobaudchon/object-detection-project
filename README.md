@@ -169,3 +169,4 @@ After integrating all these components we can see that as result our duckiebot s
 ## Common Issues
 
 1. Make sure that extraneous directories aren't being copied over to fill up the robot's storage (e.g. venvs)
+2. Make sure that the camera of the duckiebot is working, otherwise when running the code above you can get "Queue empty" message.
