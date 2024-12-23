@@ -112,7 +112,7 @@ class_list = [
     "qr code",
     "road sign"
 ] 
-``
+```
 
 The script produces a `labels` subdirectory in the original directory that contains the bounding boxes in YOLO format to be ingested by the subsequent training scripts.
 
